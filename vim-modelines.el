@@ -47,6 +47,8 @@
     ((number nu nonumber nonu) . vim-modelines-number)
     ((expandtab et noexpandtab noet) . vim-modelines-expandtab)
     ((readonly ro modifiable ma) . vim-modelines-readonly)
+    ((breakindent bri nobreakindent nobri) . vim-modelines-breakindent)
+    ((linebreak lbr nolinebreak nolbr) . vim-modelines-linebreak)
     ((relativenumber rnu norelativenumber nornu) . vim-modelines-relativenumber))
   "Vim modeline options and their handler functions."
   :type '(alist :key-type ((repeat symbol) :tag "Option and aliases") :value-type (function :tag "Handler function"))
@@ -150,6 +152,21 @@
   (when (or (and (memq name '(readonly ro)) (equal value "on"))
             (and (memq name '(modifiable ma)) (equal value "off")))
     (read-only-mode 1)))
+
+(defun vim-modelines-linebreak (name &optional value _options)
+  (vim-modelines--log "set %S to %s" name value)
+  (cond ((memq name '(linebreak lbr))
+         (visual-line-mode 1))
+        ((memq name '(nolinebreak nolbr))
+         (visual-line-mode -1))))
+
+(defun vim-modelines-breakindent (name &optional value _options)
+  (vim-modelines--log "set %S to %s" name value)
+  (when (fboundp 'visual-wrap-prefix-mode) ; Emacs 30
+    (cond ((memq name '(breakindent bri))
+           (visual-wrap-prefix-mode 1))
+          ((memq name '(nobreakindent nobri))
+           (visual-wrap-prefix-mode -1)))))
 
 (define-minor-mode vim-modelines-mode
   "Enable support for Vim's modeline options."
