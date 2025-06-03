@@ -100,27 +100,19 @@
         (funcall handler name value)))))
 
 (defun vim-modelines-tabstop (name &optional value)
-  (let ((offset (string-to-number value)))
-    (when (or (> offset 0) (< offset 40))
-      (vim-modelines--log "set %S to %d" name offset)
-      (cond ((memq name '(tabstop ts))
-             (unless (or (assq 'sts vim-modelines-buffer-options) (assq 'smarttab vim-modelines-buffer-options))
-               (message "vim-modelines: the smarttab option isn't implemented")
-               (editorconfig-set-indentation nil offset)))
-            ((memq name '(softtabstop sts))
-             (editorconfig-set-indentation nil offset))))))
+  (when-let* ((offset (string-to-number value)))
+    (vim-modelines--log "set %S to %d" name offset)
+    (editorconfig-set-indentation nil offset)))
 
 (defun vim-modelines-shiftwidth (name &optional value)
-  (when-let* ((offset (string-to-number value))
-              ((or (> offset 0) (< offset 40))))
+  (when-let* ((offset (string-to-number value)))
     (vim-modelines--log "set %S to %d" name offset)
     (editorconfig-set-indentation nil nil value)))
 
 (defun vim-modelines-textwidth (name &optional value)
-  (let ((width (string-to-number value)))
-    (when (or (> width 20))
-      (vim-modelines--log "set %S to %d" name width)
-      (setq fill-column width))))
+  (when-let* ((width (string-to-number value)))
+    (vim-modelines--log "set %S to %d" name width)
+    (setq fill-column width)))
 
 (defun vim-modelines-number (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
@@ -146,10 +138,10 @@
 
 (defun vim-modelines-filetype (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
-  (let ((value (car (string-split value "\\.")))) ; In values like ":set ft=c.doxygen", ignore the second type
-    (when-let* ((mode (alist-get (file-name-with-extension "dummy" value) auto-mode-alist nil nil #'string-match-p)))
-      (message "vim-modelines: set filetype to %S (emacs mode: %S)" value mode)
-      (funcall mode))))
+  (when-let* ((value (car (string-split value "\\."))) ; In values like ":set ft=c.doxygen", ignore the second type
+              (mode (alist-get (file-name-with-extension "dummy" value) auto-mode-alist nil nil #'string-match-p)))
+    (message "vim-modelines: set filetype to %S (emacs mode: %S)" value mode)
+    (funcall mode)))
 
 (defun vim-modelines-readonly (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
