@@ -170,6 +170,7 @@
           ((memq name '(nobreakindent nobri))
            (visual-wrap-prefix-mode -1)))))
 
+;;;###autoload
 (define-minor-mode vim-modelines-mode
   "Enable support for Vim's modeline options."
   :global t
