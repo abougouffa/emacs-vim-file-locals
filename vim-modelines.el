@@ -49,7 +49,6 @@
     ((number nu nonumber nonu) . vim-modelines-number)
     ((expandtab et noexpandtab noet) . vim-modelines-expandtab)
     ((readonly ro modifiable ma) . vim-modelines-readonly)
-    ((breakindent bri nobreakindent nobri) . vim-modelines-breakindent)
     ((linebreak lbr nolinebreak nolbr) . vim-modelines-linebreak)
     ((relativenumber rnu norelativenumber nornu) . vim-modelines-relativenumber))
   "Vim modeline options and their handler functions."
@@ -67,7 +66,7 @@
       (narrow-to-region beg end)
       (goto-char (point-min))
       (mapcar
-       (lambda (str) (let ((strs (string-split str "="))) (cons (car strs) (cadr strs))))
+       (lambda (str) (let ((strs (string-split str "="))) (cons (intern (car strs)) (cadr strs))))
        (cond ((re-search-forward "[[:space:]]+\\(?:vi\\|vim\\|Vim\\|ex\\):[[:space:]]?set?[[:space:]]\\([^:]*\\):" nil t)
               (string-split (match-string-no-properties 1) "[[:space:]]" t))
              ((re-search-forward "[[:blank:]]+\\(?:vi:\\|vim:\\|ex:\\)[[:blank:]]?\\(.*\\)" nil t)
@@ -87,47 +86,50 @@
        (forward-line (- vim-modelines-modelines))
        (vim-modelines-extract-region (point) pos)))))
 
+(defvar-local vim-modelines-buffer-options nil)
+
 ;;;###autoload
 (defun vim-modelines-apply ()
   "Apply the options in the current buffer."
-  (let ((options (vim-modelines-extract)))
+  (when-let* ((options (vim-modelines-extract)))
+    (setq vim-modelines-buffer-options options)
     (dolist (opt options)
-      (when-let* ((name (intern (car opt)))
+      (when-let* ((name (car opt))
                   (value (cdr opt))
                   (handler (cdr (assoc name vim-modelines-options-alist (lambda (keys key) (memq key keys))))))
-        (funcall handler name value options)))))
+        (funcall handler name value)))))
 
-(defun vim-modelines-tabstop (name &optional value options)
+(defun vim-modelines-tabstop (name &optional value)
   (let ((offset (string-to-number value)))
     (when (or (> offset 0) (< offset 40))
       (vim-modelines--log "set %S to %d" name offset)
       (cond ((memq name '(tabstop ts))
-             (unless (or (assoc "sts" options) (assoc "smarttab" options))
+             (unless (or (assq 'sts vim-modelines-buffer-options) (assq 'smarttab vim-modelines-buffer-options))
                (message "vim-modelines: the smarttab option isn't implemented")
                (editorconfig-set-indentation nil offset)))
             ((memq name '(softtabstop sts))
              (editorconfig-set-indentation nil offset))))))
 
-(defun vim-modelines-shiftwidth (name &optional value _options)
+(defun vim-modelines-shiftwidth (name &optional value)
   (when-let* ((offset (string-to-number value))
               ((or (> offset 0) (< offset 40))))
     (vim-modelines--log "set %S to %d" name offset)
     (editorconfig-set-indentation nil nil value)))
 
-(defun vim-modelines-textwidth (name &optional value _options)
+(defun vim-modelines-textwidth (name &optional value)
   (let ((width (string-to-number value)))
     (when (or (> width 20))
       (vim-modelines--log "set %S to %d" name width)
       (setq fill-column width))))
 
-(defun vim-modelines-number (name &optional value _options)
+(defun vim-modelines-number (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
   (cond ((memq name '(number nu))
          (display-line-numbers-mode 1))
         ((memq name '(nonumber nonu))
          (display-line-numbers-mode -1))))
 
-(defun vim-modelines-relativenumber (name &optional value _options)
+(defun vim-modelines-relativenumber (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
   (cond ((memq name '(relativenumber rnu))
          (setq display-line-numbers 'relative))
@@ -135,40 +137,39 @@
          (setq display-line-numbers t)))
   (display-line-numbers-mode 1))
 
-(defun vim-modelines-expandtab (name &optional value _options)
+(defun vim-modelines-expandtab (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
   (cond ((memq name '(expandtab et))
          (setq indent-tabs-mode nil))
         ((memq name '(noexpandtab noet))
          (setq indent-tabs-mode t))))
 
-(defun vim-modelines-filetype (name &optional value _options)
+(defun vim-modelines-filetype (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
   (let ((value (string-split value "\\."))) ; In values like ":set ft=c.doxygen", ignore the second type
     (when-let* ((mode (alist-get (file-name-with-extension "dummy" value) auto-mode-alist nil nil #'string-match-p)))
       (message "vim-modelines: set filetype to %S (emacs mode: %S)" value mode)
       (funcall mode))))
 
-(defun vim-modelines-readonly (name &optional value _options)
+(defun vim-modelines-readonly (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
   (when (or (and (memq name '(readonly ro)) (equal value "on"))
             (and (memq name '(modifiable ma)) (equal value "off")))
     (read-only-mode 1)))
 
-(defun vim-modelines-linebreak (name &optional value _options)
+(defun vim-modelines-linebreak (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
   (cond ((memq name '(linebreak lbr))
-         (visual-line-mode 1))
+         (visual-line-mode 1)
+         (when (fboundp 'visual-wrap-prefix-mode) ; Emacs 30
+           (cond ((or (assq 'breakindent vim-modelines-buffer-options) (assq 'bri vim-modelines-buffer-options))
+                  (vim-modelines--log "enabling breakindent")
+                  (visual-wrap-prefix-mode 1))
+                 ((or (assq 'nobreakindent vim-modelines-buffer-options) (assq 'nobri vim-modelines-buffer-options))
+                  (vim-modelines--log "disabling breakindent")
+                  (visual-wrap-prefix-mode -1)))))
         ((memq name '(nolinebreak nolbr))
          (visual-line-mode -1))))
-
-(defun vim-modelines-breakindent (name &optional value _options)
-  (vim-modelines--log "set %S to %s" name value)
-  (when (fboundp 'visual-wrap-prefix-mode) ; Emacs 30
-    (cond ((memq name '(breakindent bri))
-           (visual-wrap-prefix-mode 1))
-          ((memq name '(nobreakindent nobri))
-           (visual-wrap-prefix-mode -1)))))
 
 ;;;###autoload
 (define-minor-mode vim-modelines-mode
