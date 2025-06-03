@@ -151,6 +151,13 @@
             (and (memq name '(modifiable ma)) (equal value "off")))
     (read-only-mode 1)))
 
+(define-minor-mode vim-modelines-mode
+  "Enable support for Vim's modeline options."
+  :global t
+  (if vim-modelines-mode
+      (add-hook 'find-file-hook #'vim-modelines-apply)
+    (remove-hook 'find-file-hook #'vim-modelines-apply)))
+
 
 (provide 'vim-modelines)
 ;;; vim-modelines.el ends here
