@@ -146,7 +146,7 @@
 
 (defun vim-modelines-filetype (name &optional value)
   (vim-modelines--log "set %S to %s" name value)
-  (let ((value (string-split value "\\."))) ; In values like ":set ft=c.doxygen", ignore the second type
+  (let ((value (car (string-split value "\\.")))) ; In values like ":set ft=c.doxygen", ignore the second type
     (when-let* ((mode (alist-get (file-name-with-extension "dummy" value) auto-mode-alist nil nil #'string-match-p)))
       (message "vim-modelines: set filetype to %S (emacs mode: %S)" value mode)
       (funcall mode))))
