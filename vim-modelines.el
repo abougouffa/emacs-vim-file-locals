@@ -41,6 +41,16 @@
   :type 'boolean
   :group 'vim-modelines)
 
+(defcustom vim-modelines-before-apply-hook nil
+  "Runs after setting `vim-modelines-buffer-options' and before applying options."
+  :type '(repeat function)
+  :group 'vim-modelines)
+
+(defcustom vim-modelines-after-apply-hook nil
+  "A hook to run after applying options."
+  :type '(repeat function)
+  :group 'vim-modelines)
+
 (defcustom vim-modelines-options-alist
   '((("filetype" "ft" "syntax" "syn") . vim-modelines-filetype)
     (("shiftwidth" "sw") . vim-modelines-shiftwidth)
@@ -101,10 +111,12 @@
   "Apply the options in the current buffer."
   (when-let* ((options (vim-modelines-extract)))
     (setq vim-modelines-buffer-options options)
+    (run-hooks 'vim-modelines-before-apply-hook)
     (dolist (opt options)
       (when-let* ((name (car opt))
                   (handler (cdr (assoc name vim-modelines-options-alist (lambda (keys key) (member key keys))))))
-        (funcall handler name (cdr opt))))))
+        (funcall handler name (cdr opt))))
+    (run-hooks 'vim-modelines-after-apply-hook)))
 
 (defun vim-modelines-tabstop (name &optional value)
   (when-let* ((offset (ignore-errors (string-to-number value))))
