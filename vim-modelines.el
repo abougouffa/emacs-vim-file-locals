@@ -65,6 +65,10 @@
 (defun vim-modelines-no-p (name)
   (and (string-prefix-p "no" name) t))
 
+(defvar-local vim-modelines-buffer-options nil)
+(defun vim-modelines-buffer-option (&rest names)
+  (seq-some (lambda (name) (assoc name vim-modelines-buffer-options)) names))
+
 (defun vim-modelines-extract-region (beg end)
   "Extract the options form region between BEG and END."
   (save-excursion
@@ -92,8 +96,6 @@
        (forward-line (- vim-modelines-modelines))
        (vim-modelines-extract-region (point) pos)))))
 
-(defvar-local vim-modelines-buffer-options nil)
-
 ;;;###autoload
 (defun vim-modelines-apply ()
   "Apply the options in the current buffer."
@@ -101,9 +103,8 @@
     (setq vim-modelines-buffer-options options)
     (dolist (opt options)
       (when-let* ((name (car opt))
-                  (value (cdr opt))
                   (handler (cdr (assoc name vim-modelines-options-alist (lambda (keys key) (member key keys))))))
-        (funcall handler name value)))))
+        (funcall handler name (cdr opt))))))
 
 (defun vim-modelines-tabstop (name &optional value)
   (when-let* ((offset (ignore-errors (string-to-number value))))
@@ -127,7 +128,8 @@
 (defun vim-modelines-relativenumber (name &optional _value)
   (vim-modelines--log "set %s" name)
   (setq display-line-numbers (if (vim-modelines-no-p name) 'relative t))
-  (display-line-numbers-mode 1))
+  (unless (vim-modelines-buffer-option "nonumber" "nonu")
+    (display-line-numbers-mode 1)))
 
 (defun vim-modelines-expandtab (name &optional _value)
   (vim-modelines--log "set %s" name)
@@ -150,17 +152,17 @@
   (cond ((member name '("linebreak" "lbr"))
          (visual-line-mode 1)
          (when (fboundp 'visual-wrap-prefix-mode) ; Emacs 30
-           (cond ((or (assoc "breakindent" vim-modelines-buffer-options) (assoc "bri" vim-modelines-buffer-options))
+           (cond ((vim-modelines-buffer-option "breakindent" "bri")
                   (vim-modelines--log "set breakindent")
                   (visual-wrap-prefix-mode 1))
-                 ((or (assoc "nobreakindent" vim-modelines-buffer-options) (assoc "nobri" vim-modelines-buffer-options))
+                 ((vim-modelines-buffer-option "nobreakindent" "nobri")
                   (vim-modelines--log "set nobreakindent")
                   (visual-wrap-prefix-mode -1)))))
-        ((memq name '("nolinebreak" "nolbr"))
+        ((member name '("nolinebreak" "nolbr"))
          (visual-line-mode -1))))
 
 (defun vim-modelines-smartindent (name &optional _value)
-  (vim-modelines--log "set %s to %s" name)
+  (vim-modelines--log "set %s (emacs mode: electric-indent-mode)" name)
   (electric-indent-mode (if (vim-modelines-no-p name) -1 1)))
 
 (defun vim-modelines-encoding (name &optional value)
