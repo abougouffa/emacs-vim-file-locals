@@ -104,31 +104,31 @@
         (funcall handler name value)))))
 
 (defun vim-modelines-tabstop (name &optional value)
-  (when-let* ((offset (string-to-number value)))
+  (when-let* ((offset (ignore-errors (string-to-number value))))
     (vim-modelines--log "set %s to %d" name offset)
     (editorconfig-set-indentation nil value)))
 
 (defun vim-modelines-shiftwidth (name &optional value)
-  (when-let* ((offset (string-to-number value)))
+  (when-let* ((offset (ignore-errors (string-to-number value))))
     (vim-modelines--log "set %s to %d" name offset)
     (editorconfig-set-indentation nil nil value)))
 
 (defun vim-modelines-textwidth (name &optional value)
-  (when-let* ((width (string-to-number value)))
+  (when-let* ((width (ignore-errors (string-to-number value))))
     (vim-modelines--log "set %s to %d" name width)
     (setq fill-column width)))
 
-(defun vim-modelines-number (name &optional value)
-  (vim-modelines--log "set %s to %s" name value)
+(defun vim-modelines-number (name &optional _value)
+  (vim-modelines--log "set %s" name)
   (display-line-numbers-mode (if (vim-modelines-no-p name) -1 1)))
 
-(defun vim-modelines-relativenumber (name &optional value)
-  (vim-modelines--log "set %s to %s" name value)
+(defun vim-modelines-relativenumber (name &optional _value)
+  (vim-modelines--log "set %s" name)
   (setq display-line-numbers (if (vim-modelines-no-p name) 'relative t))
   (display-line-numbers-mode 1))
 
-(defun vim-modelines-expandtab (name &optional value)
-  (vim-modelines--log "set %s to %s" name value)
+(defun vim-modelines-expandtab (name &optional _value)
+  (vim-modelines--log "set %s" name)
   (setq indent-tabs-mode (vim-modelines-no-p name)))
 
 (defun vim-modelines-filetype (name &optional value)
@@ -143,22 +143,22 @@
             (and (member name '("modifiable" "ma")) (equal value "off")))
     (read-only-mode 1)))
 
-(defun vim-modelines-linebreak (name &optional value)
-  (vim-modelines--log "set %s to %s" name value)
+(defun vim-modelines-linebreak (name &optional _value)
+  (vim-modelines--log "set %s" name)
   (cond ((member name '("linebreak" "lbr"))
          (visual-line-mode 1)
          (when (fboundp 'visual-wrap-prefix-mode) ; Emacs 30
            (cond ((or (assoc "breakindent" vim-modelines-buffer-options) (assoc "bri" vim-modelines-buffer-options))
-                  (vim-modelines--log "enabling breakindent")
+                  (vim-modelines--log "set breakindent")
                   (visual-wrap-prefix-mode 1))
                  ((or (assoc "nobreakindent" vim-modelines-buffer-options) (assoc "nobri" vim-modelines-buffer-options))
-                  (vim-modelines--log "disabling breakindent")
+                  (vim-modelines--log "set nobreakindent")
                   (visual-wrap-prefix-mode -1)))))
         ((memq name '("nolinebreak" "nolbr"))
          (visual-line-mode -1))))
 
-(defun vim-modelines-smartindent (name &optional value)
-  (vim-modelines--log "set %s to %s" name value)
+(defun vim-modelines-smartindent (name &optional _value)
+  (vim-modelines--log "set %s to %s" name)
   (electric-indent-mode (if (vim-modelines-no-p name) -1 1)))
 
 ;;;###autoload
