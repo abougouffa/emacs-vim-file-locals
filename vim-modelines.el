@@ -50,6 +50,7 @@
     (("expandtab" "et" "noexpandtab" "noet") . vim-modelines-expandtab)
     (("readonly" "ro" "modifiable" "ma") . vim-modelines-readonly)
     (("linebreak" "lbr" "nolinebreak" "nolbr") . vim-modelines-linebreak)
+    (("smartindent" "si" "nosmartindent" "nosi" "autoindent" "ai" "noautoindent" "noai") . vim-modelines-smartindent)
     (("relativenumber" "rnu" "norelativenumber" "nornu") . vim-modelines-relativenumber))
   "Vim modeline options and their handler functions."
   :type '(alist :key-type ((repeat symbol) :tag "Option and aliases") :value-type (function :tag "Handler function"))
@@ -155,6 +156,10 @@
                   (visual-wrap-prefix-mode -1)))))
         ((memq name '("nolinebreak" "nolbr"))
          (visual-line-mode -1))))
+
+(defun vim-modelines-smartindent (name &optional value)
+  (vim-modelines--log "set %s to %s" name value)
+  (electric-indent-mode (if (vim-modelines-no-p name) -1 1)))
 
 ;;;###autoload
 (define-minor-mode vim-modelines-mode
