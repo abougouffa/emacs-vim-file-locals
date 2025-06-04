@@ -51,6 +51,8 @@
     (("readonly" "ro" "modifiable" "ma") . vim-modelines-readonly)
     (("linebreak" "lbr" "nolinebreak" "nolbr") . vim-modelines-linebreak)
     (("smartindent" "si" "nosmartindent" "nosi" "autoindent" "ai" "noautoindent" "noai") . vim-modelines-smartindent)
+    (("encoding" "enc") . vim-modelines-encoding)
+    (("fileencoding" "fenc") . vim-modelines-fileencoding)
     (("relativenumber" "rnu" "norelativenumber" "nornu") . vim-modelines-relativenumber))
   "Vim modeline options and their handler functions."
   :type '(alist :key-type ((repeat symbol) :tag "Option and aliases") :value-type (function :tag "Handler function"))
@@ -160,6 +162,18 @@
 (defun vim-modelines-smartindent (name &optional _value)
   (vim-modelines--log "set %s to %s" name)
   (electric-indent-mode (if (vim-modelines-no-p name) -1 1)))
+
+(defun vim-modelines-encoding (name &optional value)
+  (vim-modelines--log "set %s to %s" name value)
+  (when-let* ((enc (unless (string-empty-p value) (intern value)))
+              ((memq enc (coding-system-list 'base-only))))
+    (setq buffer-file-coding-system enc)))
+
+(defun vim-modelines-fileencoding (name &optional value)
+  (vim-modelines--log "set %s to %s" name value)
+  (when-let* ((enc (unless (string-empty-p value) (intern value)))
+              ((memq enc (coding-system-list 'base-only))))
+    (message "vim-modelines: fileencoding isn't impelmented")))
 
 ;;;###autoload
 (define-minor-mode vim-modelines-mode
