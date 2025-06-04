@@ -22,7 +22,7 @@
 
 ;; Inspired by `vim-modelines' of Seong-Kook Shin
 
-;; Vim's documentation at: https://vimhelp.org/options.txt.html#%27breakindent%27
+;; Vim's documentation at: https://vimhelp.org/options.txt.html
 
 ;;; Code:
 
