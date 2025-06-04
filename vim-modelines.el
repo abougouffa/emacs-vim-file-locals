@@ -105,7 +105,7 @@
 (defun vim-modelines-tabstop (name &optional value)
   (when-let* ((offset (string-to-number value)))
     (vim-modelines--log "set %s to %d" name offset)
-    (editorconfig-set-indentation nil offset)))
+    (editorconfig-set-indentation nil value)))
 
 (defun vim-modelines-shiftwidth (name &optional value)
   (when-let* ((offset (string-to-number value)))
