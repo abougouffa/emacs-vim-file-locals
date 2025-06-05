@@ -6,6 +6,7 @@
 ;; Keywords: files, text, emulations, matching
 ;; Version: 0.1.0
 ;; URL: https://github.com/abougouffa/vim-modelines
+;; Package-Requires: ((emacs "30.1"))
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -31,7 +32,8 @@
 (require 'editorconfig)
 
 (defgroup vim-modelines nil
-  "Set some Emacs' editor options form Vim's modelines.")
+  "Set some Emacs' editor options form Vim's modelines."
+  :group 'editing)
 
 (defcustom vim-modelines-modelines 5
   "Number of lines to consider when looking for modelines in the beginning and the end of the buffer."
