@@ -89,22 +89,16 @@
        (lambda (str) (let ((strs (string-split str "="))) (cons (car strs) (cadr strs))))
        (cond ((re-search-forward "[[:space:]]+\\(?:vi\\|vim\\|Vim\\|ex\\):[[:space:]]?set?[[:space:]]\\([^:]*\\):" nil t)
               (string-split (match-string-no-properties 1) "[[:space:]]" t))
-             ((re-search-forward "[[:blank:]]+\\(?:vi:\\|vim:\\|ex:\\)[[:blank:]]?\\(.*\\)" nil t)
+             ((re-search-forward "[[:space:]]+\\(?:vi:\\|vim:\\|ex:\\)[[:space:]]?\\(.*\\)" nil t)
               (string-split (match-string-no-properties 1) "[[:space:]:]" t)))))))
 
 (defun vim-modelines-extract ()
   "Extract the options from the current buffer."
-  (append
-   (save-excursion
-     (goto-char (point-min))
-     (let ((pos (point)))
-       (forward-line vim-modelines-modelines)
-       (vim-modelines-extract-region pos (point))))
-   (save-excursion
-     (goto-char (point-max))
-     (let ((pos (point)))
-       (forward-line (- vim-modelines-modelines))
-       (vim-modelines-extract-region (point) pos)))))
+  (save-excursion
+    (append
+     (vim-modelines-extract-region (goto-char (point-min)) (line-end-position (1+ vim-modelines-modelines)))
+     (let ((pos (goto-char (point-max))))
+       (vim-modelines-extract-region (line-beginning-position (- (1- vim-modelines-modelines))) pos)))))
 
 ;;;###autoload
 (defun vim-modelines-apply ()
