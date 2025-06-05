@@ -106,7 +106,7 @@
   (when-let* ((options (vim-modelines-extract)))
     (setq vim-modelines-buffer-options options)
     (run-hooks 'vim-modelines-before-apply-hook)
-    (dolist (opt options)
+    (dolist (opt vim-modelines-buffer-options)
       (when-let* ((name (car opt))
                   (handler (cdr (assoc name vim-modelines-options-alist (lambda (keys key) (member key keys))))))
         (funcall handler name (cdr opt))))
