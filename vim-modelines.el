@@ -91,9 +91,9 @@
       (goto-char (point-min))
       (mapcar
        (lambda (str) (let ((strs (string-split str "="))) (cons (car strs) (cadr strs))))
-       (cond ((re-search-forward "[[:space:]]+\\(?:vi\\|vim\\|Vim\\|ex\\):[[:space:]]?set?[[:space:]]\\([^:]*\\):" nil t)
+       (cond ((re-search-forward "[[:space:]]+\\(?:vi\\|vim\\|Vim\\|ex\\):[[:space:]]?set?[[:space:]]\\([^:]*\\):$" nil t)
               (string-split (match-string-no-properties 1) "[[:space:]]" t))
-             ((re-search-forward "[[:space:]]+\\(?:vi:\\|vim:\\|ex:\\)[[:space:]]?\\(.*\\)" nil t)
+             ((re-search-forward "[[:space:]]+\\(?:vi:\\|vim:\\|ex:\\)[[:space:]]?\\(.*\\)$" nil t)
               (string-split (match-string-no-properties 1) "[[:space:]:]" t)))))))
 
 (defun vim-modelines-extract ()
