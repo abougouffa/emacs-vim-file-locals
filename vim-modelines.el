@@ -112,8 +112,11 @@
     (run-hooks 'vim-modelines-before-apply-hook)
     (dolist (opt vim-modelines-buffer-options)
       (when-let* ((name (car opt))
+                  (name (string-trim name))
                   (handler (cdr (assoc name vim-modelines-options-alist (lambda (keys key) (member key keys))))))
-        (funcall handler name (cdr opt))))
+        (let* ((value (cdr opt))
+               (value (and value (string-trim value))))
+          (funcall handler name value))))
     (run-hooks 'vim-modelines-after-apply-hook)))
 
 (defun vim-modelines-tabstop (name &optional value)
