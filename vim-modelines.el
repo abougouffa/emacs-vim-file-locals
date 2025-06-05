@@ -4,6 +4,8 @@
 
 ;; Author: Abdelhak Bougouffa
 ;; Keywords: files, text, emulations, matching
+;; Version: 0.1.0
+;; URL: https://github.com/abougouffa/vim-modelines
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
