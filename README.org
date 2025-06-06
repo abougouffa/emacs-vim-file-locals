@@ -1,0 +1,41 @@
+* vim-modelines
+
+This is an Emacs package that adds support for Vim's modelines.
+
+When you open a file that includes Vim's modelines, =vim-modelines= ensures
+applying the right Emacs options that matches the modelines' ones.
+
+For example, when we open a file containing this line at the beginning/end of
+the file:
+
+#+begin_src elisp
+;; -- Elisp
+;; vim: set ts=8 tw=120 ft=el:
+#+end_src
+
+=vim-modelines= will parse the line and set =fill-column= to 120, =tab-width= to 8 and
+it will set the mode to =emacs-lisp-mode= (based on the =el=, which is interpreted
+by =vim-modelines= as a file extension).
+
+Supported Vim modeline options are:
+
+| Modeline options                          |
+|-------------------------------------------|
+| =filetype= =ft=                               |
+| =syntax= =syn=                                |
+| =shiftwidth= =sw=                             |
+| =textwidth= =tw=                              |
+| =tabstop= =ts=                                |
+| =softtabstop= =sts=                           |
+| =encoding= =enc=                              |
+| =fileencoding= =fenc=                         |
+| =fileformat= =ff=                             |
+| =readonly= =ro=                               |
+| =modifiable= =ma=                             |
+| =number= =nu= =nonumber= =nonu=                   |
+| =expandtab= =et= =noexpandtab= =noet=             |
+| =linebreak= =lbr= =nolinebreak= =nolbr=           |
+| =smartindent= =si= =nosmartindent= =nosi=         |
+| =autoindent= =ai= =noautoindent= =noai=           |
+| =relativenumber= =rnu= =norelativenumber= =nornu= |
+|-------------------------------------------|
