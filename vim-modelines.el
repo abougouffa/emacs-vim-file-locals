@@ -108,6 +108,9 @@
 (defun vim-modelines-apply ()
   "Apply the options in the current buffer."
   (when-let* ((options (vim-modelines-extract)))
+    ;; Move "filetype" to the beginning so the mode is applied before other options
+    (when-let* ((ft (assoc nil options (lambda (key _k) (member key '("filetype" "ft" "syntax" "syn"))))))
+      (setq options (cons ft (assoc-delete-all (car ft) options))))
     (setq vim-modelines-buffer-options options)
     (run-hooks 'vim-modelines-before-apply-hook)
     (dolist (opt vim-modelines-buffer-options)
