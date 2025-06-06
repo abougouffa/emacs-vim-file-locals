@@ -1,6 +1,8 @@
 * vim-modelines
 
-This is an Emacs package that adds support for Vim's modelines.
+This is an Emacs package that adds support for Vim's modelines. =vim-modelines= is
+inspired by [[https://github.com/cinsk/emacs-vim-modeline][vim-modeline]], but supports more Vim modelines and makes use of
+=editorconfig= to set some mode-specific options.
 
 When you open a file that includes Vim's modelines, =vim-modelines= ensures
 applying the right Emacs options that matches the modelines' ones.
