@@ -181,7 +181,6 @@
               ((memq enc (coding-system-list 'base-only))))
     (setq buffer-file-coding-system enc)))
 
-
 (defun vim-modelines-fileencoding-fileformat (_name &optional _value)
   (let ((coding
          (when-let* ((fenc (vim-modelines-buffer-option "fileencoding" "fenc"))
@@ -200,8 +199,8 @@
                         (type (if (vectorp type) (seq-elt type 0) type)))
                    (nth type '(undecided-unix undecided-dos undecided-mac)))))
     (when-let* ((encoding (merge-coding-systems (or coding def-type) (or eol def-eol))))
-      ;; We lure the `editorconfig-merge-coding-systems' function to return
-      ;; our encoding, then, we call `editorconfig-merge-coding-systems' with
+      ;; We lure the `editorconfig-merge-coding-systems' function to return our
+      ;; encoding, then, we call `editorconfig-set-coding-system-revert' with
       ;; garbage arguments to apply that encoding to the buffer
       (vim-modelines--log "applying encoding %S" encoding)
       (cl-letf (((symbol-function 'editorconfig-merge-coding-systems) (lambda (&rest _) encoding)))
