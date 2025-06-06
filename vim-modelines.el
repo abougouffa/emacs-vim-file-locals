@@ -150,7 +150,10 @@
   (when-let* ((value (car (string-split value "\\."))) ; In values like ":set ft=c.doxygen", ignore the second type
               (mode (alist-get (file-name-with-extension "dummy" value) auto-mode-alist nil nil #'string-match-p)))
     (vim-modelines--log "inferred major mode for %s=%s: %S" name value mode)
-    (funcall mode)))
+    ;; Don't lose the saved options after applying the mode
+    (let ((state (buffer-local-set-state vim-modelines-buffer-options vim-modelines-buffer-options)))
+      (funcall mode)
+      (buffer-local-restore-state state))))
 
 (defun vim-modelines-readonly (name &optional value)
   (when (or (and (member name '("readonly" "ro")) (equal value "on"))
