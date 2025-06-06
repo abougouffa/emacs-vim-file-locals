@@ -4,7 +4,7 @@
 
 ;; Author: Abdelhak Bougouffa
 ;; Keywords: files, text, emulations, matching
-;; Version: 0.1.0
+;; Version: 0.2.0
 ;; URL: https://github.com/abougouffa/vim-modelines
 ;; Package-Requires: ((emacs "30.1"))
 
