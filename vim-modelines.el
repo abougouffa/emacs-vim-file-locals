@@ -23,7 +23,7 @@
 
 ;;; Commentary:
 
-;; Inspired by `vim-modelines' of Seong-Kook Shin
+;; Inspired by `vim-modeline' of Seong-Kook Shin
 
 ;; Vim's documentation at: https://vimhelp.org/options.txt.html
 
