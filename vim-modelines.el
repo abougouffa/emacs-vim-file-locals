@@ -198,7 +198,7 @@
         (def-type (coding-system-type buffer-file-coding-system))
         (def-eol (let* ((type (coding-system-eol-type buffer-file-coding-system))
                         (type (if (vectorp type) (seq-elt type 0) type)))
-                   (nth type '(unix dos mac)))))
+                   (nth type '(undecided-unix undecided-dos undecided-mac)))))
     (when-let* ((encoding (merge-coding-systems (or coding def-type) (or eol def-eol))))
       ;; We lure the `editorconfig-merge-coding-systems' function to return
       ;; our encoding, then, we call `editorconfig-merge-coding-systems' with
