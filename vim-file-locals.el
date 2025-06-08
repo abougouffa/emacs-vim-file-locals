@@ -148,7 +148,11 @@
 
 (defun vim-file-locals-filetype (name &optional value)
   (when-let* ((value (car (string-split value "\\."))) ; In values like ":set ft=c.doxygen", ignore the second type
-              (mode (alist-get (file-name-with-extension "dummy" value) auto-mode-alist nil nil #'string-match-p)))
+              ;; Interpret the syntax value as a file extension or a mode name,
+              ;; this is not the accurate way to do this, but it can work for
+              ;; some syntaxes without hassle
+              (mode (or (alist-get (file-name-with-extension "dummy" value) auto-mode-alist nil nil #'string-match-p)
+                        (seq-find #'fboundp (mapcar #'intern `(,(format "%s-mode" value) ,(format "%s-ts-mode" value)))))))
     (vim-file-locals--log "inferred major mode for %s=%s: %S" name value mode)
     ;; Don't lose the saved options after applying the mode
     (let ((state (buffer-local-set-state vim-file-locals-buffer-options vim-file-locals-buffer-options)))
