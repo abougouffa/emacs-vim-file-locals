@@ -45,6 +45,11 @@
   :type 'boolean
   :group 'vim-file-locals)
 
+(defcustom vim-file-locals-prioritize-emacs-locals t
+  "Prioritize Emacs' prop line over Vim's modeline."
+  :type 'boolean
+  :group 'vim-file-locals)
+
 (defcustom vim-file-locals-before-apply-hook nil
   "Runs after setting `vim-file-locals-buffer-options' and before applying options."
   :type '(repeat function)
@@ -55,22 +60,24 @@
   :type '(repeat function)
   :group 'vim-file-locals)
 
-(defcustom vim-file-locals-options-alist
-  '((("filetype" "ft" "syntax" "syn") . vim-file-locals-filetype)
-    (("shiftwidth" "sw") . vim-file-locals-shiftwidth)
-    (("textwidth" "tw") . vim-file-locals-textwidth)
-    (("tabstop" "ts" "softtabstop" "sts") . vim-file-locals-tabstop)
-    (("number" "nu" "nonumber" "nonu") . vim-file-locals-number)
-    (("expandtab" "et" "noexpandtab" "noet") . vim-file-locals-expandtab)
-    (("readonly" "ro" "modifiable" "ma") . vim-file-locals-readonly)
-    (("linebreak" "lbr" "nolinebreak" "nolbr") . vim-file-locals-linebreak)
-    (("smartindent" "si" "nosmartindent" "nosi" "autoindent" "ai" "noautoindent" "noai") . vim-file-locals-smartindent)
-    (("encoding" "enc") . vim-file-locals-encoding)
-    (("fileencoding" "fenc" "fileformat" "ff") . vim-file-locals-fileencoding-fileformat)
-    (("relativenumber" "rnu" "norelativenumber" "nornu") . vim-file-locals-relativenumber))
-  "Vim modeline options and their handler functions."
-  :type '(alist :key-type ((repeat symbol) :tag "Option and aliases") :value-type (function :tag "Handler function"))
+(defcustom vim-file-locals-supported-options
+  '((:vim ("filetype" "ft" "syntax" "syn") :handler vim-file-locals-filetype :local mode)
+    (:vim ("shiftwidth" "sw") :handler vim-file-locals-shiftwidth :local tab-width)
+    (:vim ("textwidth" "tw") :handler vim-file-locals-textwidth :local fill-column)
+    (:vim ("tabstop" "ts" "softtabstop" "sts") :handler vim-file-locals-tabstop)
+    (:vim ("number" "nu" "nonumber" "nonu") :handler vim-file-locals-number :local display-line-numbers)
+    (:vim ("expandtab" "et" "noexpandtab" "noet") :handler vim-file-locals-expandtab :local indent-tabs-mode)
+    (:vim ("readonly" "ro" "modifiable" "ma") :handler vim-file-locals-readonly :local buffer-read-only)
+    (:vim ("linebreak" "lbr" "nolinebreak" "nolbr") :handler vim-file-locals-linebreak :local visual-line-mode)
+    (:vim ("smartindent" "si" "nosmartindent" "nosi" "autoindent" "ai" "noautoindent" "noai") :handler vim-file-locals-smartindent :local electric-indent-mode)
+    (:vim ("encoding" "enc") :handler vim-file-locals-encoding :local coding)
+    (:vim ("fileencoding" "fenc" "fileformat" "ff") :handler vim-file-locals-fileencoding-fileformat :local coding)
+    (:vim ("relativenumber" "rnu" "norelativenumber" "nornu") :handler vim-file-locals-relativenumber :local display-line-numbers))
+  "Vim modeline options, handler functions and correspoding Emacs options."
+  :type '(repeat plist)
   :group 'vim-file-locals)
+
+(define-obsolete-variable-alias 'vim-file-locals-options-alist 'vim-file-locals-supported-options "v1.1.0")
 
 (defun vim-file-locals--log (fmt &rest args)
   (when vim-file-locals-verbose
@@ -113,14 +120,21 @@
       (setq options (cons ft (assoc-delete-all (car ft) options))))
     (setq vim-file-locals-buffer-options options)
     (run-hooks 'vim-file-locals-before-apply-hook)
-    (dolist (opt vim-file-locals-buffer-options)
-      (when-let* ((name (car opt))
-                  (name (string-trim name))
-                  (handler (cdr (assoc name vim-file-locals-options-alist (lambda (keys key) (member key keys))))))
-        (let* ((value (cdr opt))
-               (value (and value (string-trim value))))
-          (vim-file-locals--log "setting %s%s" name (if value (format " to %s" value) ""))
-          (funcall handler name value))))
+    (let ((local-vars (and vim-file-locals-prioritize-emacs-locals
+                           (mapcar #'car (append (hack-local-variables--find-variables)
+                                                 (hack-local-variables-prop-line))))))
+      (dolist (opt vim-file-locals-buffer-options)
+        (when-let* ((name (car opt))
+                    (name (string-trim name))
+                    (option (seq-find (lambda (plist) (member name (plist-get plist :vim))) vim-file-locals-supported-options))
+                    (handler (plist-get option :handler)))
+          (let* ((value (cdr opt))
+                 (value (and value (string-trim value)))
+                 (prop-line (ensure-list (plist-get option :local))))
+            (if-let* ((vars (seq-intersection prop-line local-vars)))
+                (vim-file-locals--log "skipping the %S option, overridden by Emacs' %S" name vars)
+              (vim-file-locals--log "setting %s%s" name (if value (format " to %s" value) ""))
+              (funcall handler name value))))))
     (run-hooks 'vim-file-locals-after-apply-hook)))
 
 (defun vim-file-locals-tabstop (name &optional value)
