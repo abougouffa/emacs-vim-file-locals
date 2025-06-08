@@ -77,7 +77,9 @@
   :type '(repeat plist)
   :group 'vim-file-locals)
 
+;; Obsolete definitions
 (define-obsolete-variable-alias 'vim-file-locals-options-alist 'vim-file-locals-supported-options "v1.1.0")
+(define-obsolete-function-alias 'vim-modelines-mode 'vim-file-locals-mode "v1.0.0")
 
 (defun vim-file-locals--log (fmt &rest args)
   (when vim-file-locals-verbose
@@ -224,8 +226,6 @@
       (vim-file-locals--log "applying encoding %S" encoding)
       (cl-letf (((symbol-function 'editorconfig-merge-coding-systems) (lambda (&rest _) encoding)))
         (editorconfig-set-coding-system-revert nil nil)))))
-
-(define-obsolete-function-alias 'vim-modelines-mode 'vim-file-locals-mode "v1.0.0")
 
 ;;;###autoload
 (define-minor-mode vim-file-locals-mode
