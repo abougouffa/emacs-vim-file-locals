@@ -187,22 +187,21 @@
 
 (defun vim-file-locals-fileencoding-fileformat (_name &optional _value)
   (let ((coding
-         (when-let* ((fenc (vim-file-locals-buffer-option "fileencoding" "fenc"))
-                     (val (unless (string-empty-p (cdr fenc)) (intern (downcase (cdr fenc)))))
-                     (val (ignore-errors (coding-system-aliases val)))
-                     (val (car (seq-intersection (coding-system-list 'base-only) val))))
-           val))
+         (or (when-let* ((fenc (vim-file-locals-buffer-option "fileencoding" "fenc"))
+                         (val (unless (string-empty-p (cdr fenc)) (intern (downcase (cdr fenc)))))
+                         (val (ignore-errors (coding-system-aliases val)))
+                         (val (car (seq-intersection (coding-system-list 'base-only) val))))
+               val)
+             (coding-system-type buffer-file-coding-system))) ; Get the current coding system
         (eol
-         (when-let* ((ff (vim-file-locals-buffer-option "fileformat" "ff")))
-           (pcase (cdr ff)
-             ("unix" 'undecided-unix)
-             ("mac" 'undecided-mac)
-             ("dos" 'undecided-dos))))
-        (def-type (coding-system-type buffer-file-coding-system))
-        (def-eol (let* ((type (coding-system-eol-type buffer-file-coding-system))
-                        (type (if (vectorp type) (seq-elt type 0) type)))
-                   (nth type '(undecided-unix undecided-dos undecided-mac)))))
-    (when-let* ((encoding (merge-coding-systems (or coding def-type) (or eol def-eol))))
+         (or (when-let* ((ff (vim-file-locals-buffer-option "fileformat" "ff"))
+                         ((member (downcase (cdr ff)) '("unix" "mac" "dos"))))
+               (intern (concat "undecided-" ff)))
+             ;; Get the default EOF type from the current coding system
+             (let* ((type (coding-system-eol-type buffer-file-coding-system))
+                    (type (if (vectorp type) (seq-elt type 0) type)))
+               (nth type '(undecided-unix undecided-dos undecided-mac))))))
+    (when-let* ((encoding (merge-coding-systems coding eol)))
       ;; We lure the `editorconfig-merge-coding-systems' function to return our
       ;; encoding, then, we call `editorconfig-set-coding-system-revert' with
       ;; garbage arguments to apply that encoding to the buffer
