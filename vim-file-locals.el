@@ -108,8 +108,10 @@
   (save-excursion
     (append
      (vim-file-locals-extract-region (goto-char (point-min)) (line-end-position (1+ vim-file-locals-modelines)))
-     (let ((pos (goto-char (point-max))))
-       (vim-file-locals-extract-region (line-beginning-position (- (1- vim-file-locals-modelines))) pos)))))
+     (let ((pos (goto-char (point-max)))
+           (stop-line (- (car (buffer-line-statistics)) vim-file-locals-modelines)))
+       (when (> stop-line 1)
+         (vim-file-locals-extract-region (line-beginning-position (- (1- (min stop-line vim-file-locals-modelines)))) pos))))))
 
 ;;;###autoload
 (defun vim-file-locals-apply ()
