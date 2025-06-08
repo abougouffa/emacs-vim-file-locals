@@ -4,7 +4,7 @@
 
 ;; Author: Abdelhak Bougouffa
 ;; Keywords: files, text, emulations, matching
-;; Version: 1.0.0
+;; Version: 1.1.0
 ;; URL: https://github.com/abougouffa/vim-file-locals
 ;; Package-Requires: ((emacs "30.1"))
 
