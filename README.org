@@ -1,10 +1,10 @@
-* vim-modelines
+* vim-file-locals
 
-This is an Emacs package that adds support for Vim's modelines. =vim-modelines= is
-inspired by [[https://github.com/cinsk/emacs-vim-modeline][vim-modeline]], but supports more Vim modelines and makes use of
+This is an Emacs package that adds support for Vim's modelines. =vim-file-locals=
+is inspired by [[https://github.com/cinsk/emacs-vim-modeline][vim-modeline]], but supports more Vim modelines and makes use of
 =editorconfig= to set some mode-specific options.
 
-When you open a file that includes Vim's modelines, =vim-modelines= ensures
+When you open a file that includes Vim's modelines, =vim-file-locals= ensures
 applying the right Emacs options that matches the modelines' ones.
 
 For example, when we open a file containing this line at the beginning/end of
@@ -15,9 +15,9 @@ the file:
 ;; vim: set ts=8 tw=120 ft=el:
 #+end_src
 
-=vim-modelines= will parse the line and set =fill-column= to 120, =tab-width= to 8 and
-it will set the mode to =emacs-lisp-mode= (based on the =el=, which is interpreted
-by =vim-modelines= as a file extension).
+=vim-file-locals= will parse the line and set =fill-column= to 120, =tab-width= to 8
+and it will set the mode to =emacs-lisp-mode= (based on the =el=, which is
+interpreted by =vim-file-locals= as a file extension).
 
 Supported Vim modeline options are:
 
