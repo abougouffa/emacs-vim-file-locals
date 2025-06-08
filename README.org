@@ -41,3 +41,20 @@ Supported Vim modeline options are:
 | =autoindent= =ai= =noautoindent= =noai=           |
 | =relativenumber= =rnu= =norelativenumber= =nornu= |
 |-------------------------------------------|
+
+** Installation
+Using Emacs' 30+ built-in =use-package='s =:vc= keyword:
+
+#+begin_src elisp
+(use-package vim-file-locals
+  :vc (:url "https://github.com/abougouffa/emacs-vim-file-locals" :rev :newest)
+  :hook (after-init . vim-file-locals-mode))
+#+end_src
+
+Or, using the =straight= package:
+
+#+begin_src elisp
+(use-package vim-file-locals
+  :straight (:host github :repo "abougouffa/emacs-vim-file-locals")
+  :hook (after-init . vim-file-locals-mode))
+#+end_src
