@@ -210,6 +210,8 @@
       (cl-letf (((symbol-function 'editorconfig-merge-coding-systems) (lambda (&rest _) encoding)))
         (editorconfig-set-coding-system-revert nil nil)))))
 
+(define-obsolete-function-alias 'vim-modelines-mode 'vim-file-locals-mode "v1.0.0")
+
 ;;;###autoload
 (define-minor-mode vim-file-locals-mode
   "Enable support for Vim's modeline options."
