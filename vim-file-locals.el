@@ -40,11 +40,6 @@
   :type 'integer
   :group 'vim-file-locals)
 
-(defcustom vim-file-locals-prioritize-emacs-prop-line t
-  "Prioritize Emacs prop-line options over Vim's modeline ones."
-  :type 'boolean
-  :group 'vim-file-locals)
-
 (defcustom vim-file-locals-verbose nil
   "Verbose mode."
   :type 'boolean
