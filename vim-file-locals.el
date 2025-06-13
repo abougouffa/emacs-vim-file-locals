@@ -50,6 +50,11 @@
   :type 'boolean
   :group 'vim-file-locals)
 
+(defcustom vim-file-locals-prefer-auto-mode t
+  "Try to apply \"filetype\" or \"syntax\" only in `fundamental-mode'."
+  :type 'boolean
+  :group 'vim-file-locals)
+
 (defcustom vim-file-locals-before-apply-hook nil
   "Runs after setting `vim-file-locals-buffer-options' and before applying options."
   :type '(repeat function)
@@ -165,7 +170,9 @@
   (setq indent-tabs-mode (vim-file-locals-no-p name)))
 
 (defun vim-file-locals-filetype (name &optional value)
-  (when-let* ((value (car (string-split value "\\."))) ; In values like ":set ft=c.doxygen", ignore the second type
+  (when-let* (((or (and vim-file-locals-prefer-auto-mode (eq major-mode 'fundamental-mode))
+                   (not vim-file-locals-prefer-auto-mode)))
+              (value (car (string-split value "\\."))) ; In values like ":set ft=c.doxygen", ignore the second type
               ;; Interpret the syntax value as a file extension or a mode name,
               ;; this is not the accurate way to do this, but it can work for
               ;; some syntaxes without hassle
