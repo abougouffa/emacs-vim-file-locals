@@ -58,3 +58,7 @@ Or, using the =straight= package:
   :straight (:host github :repo "abougouffa/emacs-vim-file-locals")
   :hook (after-init . vim-file-locals-mode))
 #+end_src
+
+If you don't want to enable =vim-file-locals-mode= globally, you can use the =M-x
+vim-file-locals-apply= command to extract and apply VIM's modeline options from
+the current buffer.
