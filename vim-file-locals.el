@@ -121,8 +121,11 @@
          (vim-file-locals-extract-region (line-beginning-position (- (1- (min stop-line vim-file-locals-modelines)))) pos))))))
 
 ;;;###autoload
-(defun vim-file-locals-apply ()
-  "Apply the options in the current buffer."
+(defun vim-file-locals-apply (&optional dont-ask)
+  "Apply the options in the current buffer.
+When called interactively with DONT-ASK, don't ask before applying the
+detected options."
+  (interactive "P")
   (when-let* ((options (vim-file-locals-extract)))
     ;; Move "filetype" to the beginning so the mode is applied before other options
     (when-let* ((ft (assoc nil options (lambda (key _k) (member key '("filetype" "ft" "syntax" "syn"))))))
@@ -143,7 +146,11 @@
             (if-let* ((vars (seq-intersection prop-line local-vars)))
                 (vim-file-locals--log "skipping the %S option, overridden by Emacs' %S" name vars)
               (vim-file-locals--log "setting %s%s" name (if value (format " to %s" value) ""))
-              (funcall handler name value))))))
+              (when (or dont-ask
+                        (not (called-interactively-p 'interactive))
+                        (and (called-interactively-p 'interactive)
+                             (y-or-n-p (format "Set VIM's modeline %S%s?" name (if value (format " to %s" value) "")))))
+                (funcall handler name value)))))))
     (run-hooks 'vim-file-locals-after-apply-hook)))
 
 (defun vim-file-locals-tabstop (name &optional value)
