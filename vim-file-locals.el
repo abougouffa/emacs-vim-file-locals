@@ -35,8 +35,11 @@
   "Set some Emacs' editor options form Vim's modelines."
   :group 'editing)
 
-(defcustom vim-file-locals-modelines 5
-  "Number of lines to consider when looking for modelines in the beginning and the end of the buffer."
+(defcustom vim-file-locals-modelines 10
+  "Number of lines to consider when looking for modelines.
+
+This number of lines is lookedup in the beginning and the end of the
+buffer."
   :type 'integer
   :group 'vim-file-locals)
 
