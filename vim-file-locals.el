@@ -147,9 +147,8 @@ detected options."
                 (vim-file-locals--log "skipping the %S option, overridden by Emacs' %S" name vars)
               (vim-file-locals--log "setting %s%s" name (if value (format " to %s" value) ""))
               (when (or dont-ask
-                        (not (called-interactively-p 'interactive))
-                        (and (called-interactively-p 'interactive)
-                             (y-or-n-p (format "Set VIM's modeline %S%s?" name (if value (format " to %s" value) "")))))
+                        (not (interactive-p))
+                        (y-or-n-p (format "Set VIM's modeline %S%s?" name (if value (format " to %s" value) ""))))
                 (funcall handler name value)))))))
     (run-hooks 'vim-file-locals-after-apply-hook)))
 
