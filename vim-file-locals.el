@@ -157,11 +157,15 @@ detected options."
 
 (defun vim-file-locals-tabstop (name &optional value)
   (when-let* ((offset (ignore-errors (string-to-number value))))
-    (editorconfig-set-indentation nil value)))
+    (let ((hash (make-hash-table)))
+      (puthash 'indent_size value hash)
+      (editorconfig-set-local-variables hash))))
 
 (defun vim-file-locals-shiftwidth (name &optional value)
   (when-let* ((offset (ignore-errors (string-to-number value))))
-    (editorconfig-set-indentation nil nil value)))
+    (let ((hash (make-hash-table)))
+      (puthash 'tab_width value hash)
+      (editorconfig-set-local-variables hash))))
 
 (defun vim-file-locals-textwidth (name &optional value)
   (when-let* ((width (ignore-errors (string-to-number value))))
